@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Search by Artist</title>
+</head>
+<body>
+
+<a href="/comix">На главную</a>
+<br/>
+<p>По запросу "
+  <span th:text="${query}"></span>
+  ":</p>
+<div th:if="${comics.isEmpty()}">
+  <span>комиксов с данным художником не найдено</span>
+</div>
+<div th:each="comic : ${comics}">
+  <p>
+    <a th:href="@{/comix/{id}(id=${comic.getBook().getId()})}"
+       th:text="${comic.getBook().getTitle()}">hyper</a>
+    <span th:text="${' выпуск: ' + comic.getTitle() + ', '+ comic.getYear() + ' год'}">text</span>
+  </p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Search by AltCover</title>
+</head>
+<body>
+
+<a href="/comix">На главную</a>
+<br/>
+<p>Книги с альтернативной обложкой:</p>
+<div th:if="${books.isEmpty()}">
+  <span>Книг не найдено</span>
+</div>
+<div th:each="book : ${books}">
+  <p>
+    <a th:href="@{/comix/{id}(id=${book.getId()})}"
+       th:text="${book.getTitle()}">hyper</a>
+    <span th:text="${book.getYear() + ' год, формат: ' + book.getFormat().getDisplayValue()}">text</span>
+  </p>
+</div>
+
+</body>
+</html>

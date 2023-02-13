@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book</title>
+</head>
+<body>
+
+<a href="/comix">На главную</a>
+<br/>
+
+<p th:text="${book.getTitle() + ', ' + book.getYear()}">Title</p>
+<p>Формат:
+    <span th:text="${book.getFormat().getDisplayValue()}"></span>
+</p>
+<div th:if="${book.isAltCover()}">
+    <p>Альтернативная обложка</p>
+</div>
+<div th:if="${book.isAutograph()}">
+    <p>С автографом:
+    <span th:text="${book.getSignature()}">Autograph</span>
+    </p>
+</div>
+
+<hr/>
+<span>Содержимое:</span>
+<table th:each="comic : ${comicsList}">
+    <tr>
+        <td>
+            <span th:text="${comic.getTitle() + ', ' + comic.getYear() + ' год, сценарист: ' + comic.getWriter() +
+            ', художник: ' + comic.getArtist()}">comics</span>
+            <a th:href="@{/comix/comics/{comic_id}/edit(comic_id=${comic.getId()})}">Изменить</a>
+        </td>
+    </tr>
+</table>
+<a th:href="@{/comix/{book_id}/new_comic(book_id=${book.getId()})}">Добавить содержимое</a>
+<hr/>
+<br/>
+
+<form th:method="GET" th:action="@{/comix/{id}/edit(id=${book.getId()})}">
+    <input type="submit" value="Редактировать"/>
+</form>
+
+<form th:method="DELETE" th:action="@{/comix/{id}(id=${book.getId()})}">
+    <input type="submit" value="Удалить"/>
+</form>
+
+</body>
+</html>

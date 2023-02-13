@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit comic</title>
+</head>
+<body>
+
+<a href="/comix">На главную</a>
+<br/>
+<br/>
+
+<form th:method="PATCH" th:action="@{/comix/comics/{comic_id}(comic_id=${comic.getId()})}" th:object="${comic}">
+  <label for="title">Название комикса: </label>
+  <input type="text" th:field="*{title}" id="title"/>
+  <div style="color:red" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Title Error</div>
+  <br/>
+  <label for="writer">Сценарист: </label>
+  <input type="text" th:field="*{writer}" id="writer"/>
+  <div style="color:red" th:if="${#fields.hasErrors('writer')}" th:errors="*{writer}">Writer Error</div>
+  <br/>
+  <label for="artist">Художник: </label>
+  <input type="text" th:field="*{artist}" id="artist"/>
+  <div style="color:red" th:if="${#fields.hasErrors('artist')}" th:errors="*{artist}">Artist Error</div>
+  <br/>
+  <label for="year">Введите год: </label>
+  <input type="text" th:field="*{year}" id="year"/>
+  <div style="color:red" th:if="${#fields.hasErrors('year')}" th:errors="*{year}">Year Error</div>
+  <br/>
+  <input type="submit" value="Изменить"/>
+</form>
+
+<form th:method="DELETE" th:action="@{/comix/comics/{comic_id}/delete(comic_id=${comic.getId()})}">
+  <input type="submit" value="Удалить"/>
+</form>
+
+</body>
+</html>
