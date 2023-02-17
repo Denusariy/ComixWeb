@@ -24,11 +24,11 @@
 
 <hr/>
 <span>Содержимое:</span>
-<table th:each="comic : ${comicsList}">
+<table th:each="comic : ${book.getComicsList()}">
     <tr>
         <td>
-            <span th:text="${comic.getTitle() + ', ' + comic.getYear() + ' год, сценарист: ' + comic.getWriter() +
-            ', художник: ' + comic.getArtist()}">comics</span>
+            <span th:text="${comic.getTitle() + ', ' + comic.getYear() + ' год, сценарий: ' + comic.getWriters() +
+            ', рисунок: ' + comic.getArtists()}">comics</span>
             <a th:href="@{/comix/comics/{comic_id}/edit(comic_id=${comic.getId()})}">Изменить</a>
         </td>
     </tr>

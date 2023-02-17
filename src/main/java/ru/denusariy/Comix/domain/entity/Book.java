@@ -11,7 +11,6 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "book")
-@Component
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

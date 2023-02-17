@@ -25,41 +25,41 @@ public class SearchController {
         this.bookDAO = bookDAO;
     }
 
-    @PostMapping("/title")
-    @Operation(summary = "POST-запрос для поиска книги по части строки в названии")
-    public String searchByTitle(Model model, @RequestParam("query") String query) {
-        model.addAttribute("books", bookService.searchByTitle(query));
-        model.addAttribute("query", query);
-        return "search/title";
-    }
-
-    @PostMapping("/altcover")
-    @Operation(summary = "POST-запрос для поиска книг с альтернативной обложкой")
-    public String searchAltCover(Model model) {
-        model.addAttribute("books", bookDAO.altCover());
-        return "search/altcover";
-    }
-
-    @PostMapping("/autograph")
-    @Operation(summary = "POST-запрос для поиска книг с автографом")
-    public String searchAutograph(Model model) {
-        model.addAttribute("books", bookDAO.autograph());
-        return "search/autograph";
-    }
-
-    @PostMapping("/writer")
-    @Operation(summary = "POST-запрос для поиска комиксов по выбранному сценаристу")
-    public String searchByWriter(Model model, @RequestParam("writer") String writer) {
-        model.addAttribute("comics", comicService.findByWriter(writer));
-        model.addAttribute("query", writer);
-        return "search/writer";
-    }
-
-    @PostMapping("/artist")
-    @Operation(summary = "POST-запрос для поиска комиксов по выбранному художнику")
-    public String searchByArtist(Model model, @RequestParam("artist") String artist) {
-        model.addAttribute("comics", comicService.findByArtist(artist));
-        model.addAttribute("query", artist);
-        return "search/artist";
-    }
+//    @PostMapping("/title")
+//    @Operation(summary = "POST-запрос для поиска книги по части строки в названии")
+//    public String searchByTitle(Model model, @RequestParam("query") String query) {
+//        model.addAttribute("books", bookService.searchByTitle(query));
+//        model.addAttribute("query", query);
+//        return "search/title";
+//    }
+//
+//    @PostMapping("/altcover")
+//    @Operation(summary = "POST-запрос для поиска книг с альтернативной обложкой")
+//    public String searchAltCover(Model model) {
+//        model.addAttribute("books", bookDAO.altCover());
+//        return "search/altcover";
+//    }
+//
+//    @PostMapping("/autograph")
+//    @Operation(summary = "POST-запрос для поиска книг с автографом")
+//    public String searchAutograph(Model model) {
+//        model.addAttribute("books", bookDAO.autograph());
+//        return "search/autograph";
+//    }
+//
+//    @PostMapping("/writer")
+//    @Operation(summary = "POST-запрос для поиска комиксов по выбранному сценаристу")
+//    public String searchByWriter(Model model, @RequestParam("writer") String writer) {
+//        model.addAttribute("comics", comicService.findByWriter(writer));
+//        model.addAttribute("query", writer);
+//        return "search/writer";
+//    }
+//
+//    @PostMapping("/artist")
+//    @Operation(summary = "POST-запрос для поиска комиксов по выбранному художнику")
+//    public String searchByArtist(Model model, @RequestParam("artist") String artist) {
+//        model.addAttribute("comics", comicService.findByArtist(artist));
+//        model.addAttribute("query", artist);
+//        return "search/artist";
+//    }
 }

@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component;
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 import java.util.Objects;
 
-@Component
 @Entity
 @Table(name = "comic")
 public class Comic {
@@ -21,25 +21,22 @@ public class Comic {
     @Column(name = "year")
     @Min(value = 1900, message = "Год выпуска должен быть больше 1900")
     private int year;
-    @Column(name = "writer")
-    @NotBlank(message = "У комикса должен быть сценарист")
-    private String writer;
-    @Column(name = "artist")
-    @NotBlank(message = "У комикса должен быть художник")
-    private String artist;
     @ManyToOne
     @JoinColumn(name = "book_id", referencedColumnName = "id")
     private Book book;
-    public Comic() {
-    }
+    @ManyToMany
+    @JoinTable(
+            name = "comic_writer",
+            joinColumns = @JoinColumn(name = "comic_id"),
+            inverseJoinColumns = @JoinColumn(name = "writer_id"))
+    private List<Writer> writers;
 
-    public Comic(String title, int year, String writer, String artist, Book book) {
-        this.title = title;
-        this.year = year;
-        this.writer = writer;
-        this.artist = artist;
-        this.book = book;
-    }
+    @ManyToMany
+    @JoinTable(
+            name = "comic_artist",
+            joinColumns = @JoinColumn(name = "comic_id"),
+            inverseJoinColumns = @JoinColumn(name = "artist_id"))
+    private List<Artist> artists;
 
     public int getId() {
         return id;
@@ -65,22 +62,6 @@ public class Comic {
         this.year = year;
     }
 
-    public String getWriter() {
-        return writer;
-    }
-
-    public void setWriter(String writer) {
-        this.writer = writer;
-    }
-
-    public String getArtist() {
-        return artist;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
-
     public Book getBook() {
         return book;
     }
@@ -89,13 +70,36 @@ public class Comic {
         this.book = book;
     }
 
+    public List<Writer> getWriters() {
+        return writers;
+    }
+
+    public void setWriters(List<Writer> writers) {
+        this.writers = writers;
+    }
+
+    public List<Artist> getArtists() {
+        return artists;
+    }
+
+    public void setArtists(List<Artist> artists) {
+        this.artists = artists;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Comic comic = (Comic) o;
-        return id == comic.id && year == comic.year && Objects.equals(title, comic.title) && Objects.equals(writer, comic.writer) && Objects.equals(artist, comic.artist) && Objects.equals(book, comic.book);
+        return id == comic.id && year == comic.year && Objects.equals(title, comic.title) && Objects.equals(book, comic.book) && Objects.equals(writers, comic.writers) && Objects.equals(artists, comic.artists);
     }
+    //    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        Comic comic = (Comic) o;
+//        return id == comic.id && year == comic.year && Objects.equals(title, comic.title) && Objects.equals(writer, comic.writer) && Objects.equals(artist, comic.artist) && Objects.equals(book, comic.book);
+//    }
 
     @Override
     public int hashCode() {

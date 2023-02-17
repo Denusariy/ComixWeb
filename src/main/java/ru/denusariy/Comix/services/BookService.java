@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.denusariy.Comix.domain.dto.request.BookRequestDTO;
+import ru.denusariy.Comix.domain.dto.response.BookResponseDTO;
 import ru.denusariy.Comix.domain.entity.Book;
 import ru.denusariy.Comix.domain.entity.Comic;
 import ru.denusariy.Comix.repositories.BookRepository;
@@ -28,18 +30,18 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public Book findOne(int id) {
-        return bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
+    public BookResponseDTO findOne(int id) {
+        return convertToDTO(bookRepository.findById(id).orElseThrow(BookNotFoundException::new));
     }
 
     @Transactional(readOnly = true)
-    public List<Comic> getComicsByBookId(int id) {
-        return bookRepository.findById(id).get().getComicsList();
+    public BookRequestDTO findOneForPatch(int id) {
+        return convertToRequestDTO(bookRepository.findById(id).orElseThrow(BookNotFoundException::new));
     }
 
     @Transactional
-    public void save(Book book) {
-        bookRepository.save(book);
+    public BookResponseDTO save(BookRequestDTO bookRequestDTO) {
+        return convertToDTO(bookRepository.save(convertToBook(bookRequestDTO)));
     }
 
     @Transactional
@@ -48,42 +50,54 @@ public class BookService {
     }
 
     @Transactional
-    public void update(int id, Book updatedBook) {
+    public BookResponseDTO update(int id, BookRequestDTO updatedBook) {
         Book bookToBeUpdated = bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
         modelMapper.map(updatedBook, bookToBeUpdated);
-        bookRepository.save(bookToBeUpdated);
+        return convertToDTO(bookRepository.save(bookToBeUpdated));
     }
+//
+//    @Transactional(readOnly = true)
+//    public List<Book> searchByTitle(String query) {
+//        return bookRepository.findByTitleContainsIgnoreCase(query);
+//    }
 
-    @Transactional(readOnly = true)
-    public List<Book> searchByTitle(String query) {
-        return bookRepository.findByTitleContainsIgnoreCase(query);
-    }
-
-    public Page<Book> findWithPagination(Optional<Integer> page, Optional<Integer> size) {
+    public Page<BookResponseDTO> findWithPagination(Optional<Integer> page, Optional<Integer> size) {
         int currentPage = page.orElse(1);
         int pageSize = size.orElse(20);
         return findPaginated(PageRequest.of(currentPage - 1, pageSize));
     }
 
     @Transactional(readOnly = true)
-    public Page<Book> findPaginated(Pageable pageable) {
+    public Page<BookResponseDTO> findPaginated(Pageable pageable) {
         int pageSize = pageable.getPageSize();
         int currentPage = pageable.getPageNumber();
         int startItem = currentPage * pageSize;
-        List<Book> list;
-        List<Book> books = bookRepository.findAll(Sort.by("title"));
+        List<BookResponseDTO> list;
+        List<BookResponseDTO> books = bookRepository.findAll(Sort.by("title")).stream()
+                .map(this::convertToDTO).collect(Collectors.toList());
         if(books.size() < startItem) {
             list = Collections.emptyList();
         } else {
             int toIndex = Math.min(startItem + pageSize, books.size());
             list = books.subList(startItem, toIndex);
         }
-        Page<Book> bookPage = new PageImpl<Book>(list, PageRequest.of(currentPage, pageSize), books.size());
-        return bookPage;
+        return new PageImpl<>(list, PageRequest.of(currentPage, pageSize), books.size());
     }
 
-    public List<Integer> getPageNumbers(Page<Book> bookPage) {
+    public List<Integer> getPageNumbers(Page<BookResponseDTO> bookPage) {
         return IntStream.rangeClosed(1, bookPage.getTotalPages()).boxed().collect(Collectors.toList());
+    }
+
+    private BookResponseDTO convertToDTO(Book book) {
+        return modelMapper.map(book, BookResponseDTO.class);
+    }
+
+    private Book convertToBook(BookRequestDTO bookRequestDTO) {
+        return modelMapper.map(bookRequestDTO, Book.class);
+    }
+
+    private BookRequestDTO convertToRequestDTO(Book book) {
+        return modelMapper.map(book, BookRequestDTO.class);
     }
 
 }
