@@ -14,8 +14,8 @@
 <table th:each="comic : ${book.getComicsList()}">
   <tr>
     <td>
-            <span th:text="${comic.getTitle() + ', ' + comic.getYear() + ' год, сценарист: ' + comic.getWriter() +
-            ', художник: ' + comic.getArtist()}">comic</span>
+            <span th:text="${comic.getTitle() + ', ' + comic.getYear() + ' год, сценарий: ' + comic.getWriters() +
+            ', рисунок: ' + comic.getArtists()}">comic</span>
     </td>
   </tr>
 </table>
@@ -27,12 +27,12 @@
   <div style="color:red" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Title Error</div>
   <br/>
   <label for="writer">Сценарист: </label>
-  <input type="text" th:field="*{writer}" id="writer"/>
-  <div style="color:red" th:if="${#fields.hasErrors('writer')}" th:errors="*{writer}">Writer Error</div>
+  <input type="text" th:field="*{writers}" id="writer"/>
+  <div style="color:red" th:if="${#fields.hasErrors('writers')}" th:errors="*{writers}">Writer Error</div>
   <br/>
   <label for="artist">Художник: </label>
-  <input type="text" th:field="*{artist}" id="artist"/>
-  <div style="color:red" th:if="${#fields.hasErrors('artist')}" th:errors="*{artist}">Artist Error</div>
+  <input type="text" th:field="*{artists}" id="artist"/>
+  <div style="color:red" th:if="${#fields.hasErrors('artists')}" th:errors="*{artists}">Artist Error</div>
   <br/>
   <label for="year">Введите год: </label>
   <input type="text" th:field="*{year}" id="year"/>

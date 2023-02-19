@@ -8,19 +8,27 @@
 
 <a href="/comix">На главную</a>
 <br/>
+<a href="/comix/search">К поиску</a>
+<br/>
 <p>По запросу "
-  <span th:text="${query}"></span>
+  <span th:text="${writer}"></span>
   ":</p>
-<div th:if="${comics.isEmpty()}">
+<div th:if="${comicPage.isEmpty()}">
   <span>комиксов с данным сценаристом не найдено</span>
 </div>
-<div th:each="comic : ${comics}">
+<div th:each="comic : ${comicPage}">
   <p>
     <a th:href="@{/comix/{id}(id=${comic.getBook().getId()})}"
        th:text="${comic.getBook().getTitle()}">hyper</a>
-    <span th:text="${' выпуск: ' + comic.getTitle() + ', '+ comic.getYear() + ' год'}">text</span>
+    <span th:text="${' выпуск: ' + comic.getTitle() + ', '+ comic.getYear() + ' год, сценарий: ' + comic.getWriters() +
+            ', рисунок: ' + comic.getArtists()}">comic</span>
   </p>
 </div>
+<span th:if="${comicPage.totalPages > 1}" class="pagination"
+      th:each="pageNumber : ${pageNumbers}">
+     <a th:href="@{/comix/search/writer(writer=${writer}, size=${comicPage.size}, page=${pageNumber - 1})}"
+        th:text="${pageNumber}" th:class="${pageNumber==comicPage.number + 1} ? active"></a>
+</span>
 
 </body>
 </html>

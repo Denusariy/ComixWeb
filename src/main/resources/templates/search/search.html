@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Search page</title>
+</head>
+<body>
+
+<a href="/comix">На главную</a>
+<br/>
+
+<form th:method="GET" th:action="@{/comix/search/title}">
+    <label for="query">Поиск по названию: </label>
+    <input type="text" id="query" th:name="query"/>
+    <input type="submit" value="Искать"/>
+</form>
+<form th:method="GET" th:action="@{/comix/search/writer}">
+    <label for="writers">Поиск по сценаристу: </label>
+    <select th:object="${list.writers}" th:name="writer" id="writers">
+        <option th:each="writer : ${list.writers}" th:value="${writer.getName()}" th:text="${writer.getName()}" name="writer"></option>
+    </select>
+    <input type="submit" value="Искать"/>
+</form>
+<form th:method="GET" th:action="@{/comix/search/artist}">
+    <label for="artists">Поиск по художнику: </label>
+    <select th:object="${list.artists}" th:name="artist" id="artists">
+        <option th:each="artist : ${list.artists}" th:value="${artist.getName()}" th:text="${artist.getName()}" name="artist"></option>
+    </select>
+    <input type="submit" value="Искать"/>
+</form>
+<form th:method="GET" th:action="@{/comix/search/altcover}">
+    <span>Книги с альтернативными обложками </span>
+    <input type="submit" value="Искать"/>
+</form>
+<form th:method="GET" th:action="@{/comix/search/autograph}">
+    <span>Книги с автографами </span>
+    <input type="submit" value="Искать"/>
+</form>
+
+</body>
+</html>

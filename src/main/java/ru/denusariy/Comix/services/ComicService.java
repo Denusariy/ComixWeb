@@ -4,12 +4,15 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.denusariy.Comix.domain.dto.request.ComicRequestDTO;
+import ru.denusariy.Comix.domain.dto.response.ComicResponseDTO;
+import ru.denusariy.Comix.domain.entity.Artist;
 import ru.denusariy.Comix.domain.entity.Book;
 import ru.denusariy.Comix.domain.entity.Comic;
+import ru.denusariy.Comix.domain.entity.Writer;
 import ru.denusariy.Comix.exception.ComicNotFoundException;
 import ru.denusariy.Comix.repositories.BookRepository;
 import ru.denusariy.Comix.repositories.ComicRepository;
-
 import java.util.*;
 
 @Service
@@ -18,71 +21,86 @@ public class ComicService {
     private final ComicRepository comicRepository;
     private final BookRepository bookRepository;
     private final ModelMapper modelMapper;
+    private final WriterService writerService;
+    private final ArtistService artistService;
 
     @Autowired
-    public ComicService(ComicRepository comicRepository, BookRepository bookRepository, ModelMapper modelMapper) {
+    public ComicService(ComicRepository comicRepository, BookRepository bookRepository, ModelMapper modelMapper, WriterService writerService, ArtistService artistService) {
         this.comicRepository = comicRepository;
         this.bookRepository = bookRepository;
         this.modelMapper = modelMapper;
+        this.writerService = writerService;
+        this.artistService = artistService;
     }
 
+    //сохранить комикс, сценаристов и художников
     @Transactional
-    public void save(int id, Comic comic) {
-        comicRepository.save(comic);
+    public void save(int id, ComicRequestDTO comicRequestDTO) {
+        Comic comic = convertToComic(comicRequestDTO);
+        comic.setWriters(writerService.save(comicRequestDTO.getWriters()));
+        comic.setArtists(artistService.save(comicRequestDTO.getArtists()));
         Book book = bookRepository.findById(id).orElse(null);
         comic.setBook(book);
         assert book != null;
         book.setComicsList(new ArrayList<>(Collections.singletonList(comic)));
+        comicRepository.save(comic);
     }
 
-    public Comic findOne(int id) {
-        return comicRepository.findById(id).orElse(null);
+    //найти комикс по id, возвращает ResponseDTO
+    @Transactional(readOnly = true)
+    public ComicResponseDTO findOne(int id) {
+        return convertToResponseDTO(comicRepository.findById(id).orElseThrow(ComicNotFoundException::new));
     }
 
+    //найти комикс по id, возвращает RequestDTO. Необходимо только для Patch-запроса в Thymeleaf
+    @Transactional(readOnly = true)
+    public ComicRequestDTO findOneForPatch(int id) {
+        return convertToRequestDTO(comicRepository.findById(id).orElseThrow(ComicNotFoundException::new));
+    }
+
+    //обновить комикс, сохранить сценаристов и художников
     @Transactional
-    public void update(int comicId, Comic updatedComic) {
+    public void update(int comicId, ComicRequestDTO comicRequestDTO) {
         Comic comicToBeUpdated = comicRepository.findById(comicId).orElseThrow(ComicNotFoundException::new);
-        modelMapper.map(updatedComic, comicToBeUpdated);
+        comicToBeUpdated.setTitle(comicRequestDTO.getTitle());
+        comicToBeUpdated.setYear(comicRequestDTO.getYear());
+        comicToBeUpdated.setWriters(writerService.save(comicRequestDTO.getWriters()));
+        comicToBeUpdated.setArtists(artistService.save(comicRequestDTO.getArtists()));
         comicRepository.save(comicToBeUpdated);
     }
 
-    public int findBookByComicId(int comicId) {
-        return comicRepository.findById(comicId).get().getBook().getId();
-    }
-
+    //удалить комикс по id
     @Transactional
     public void delete(int comicId) {
         comicRepository.deleteById(comicId);
     }
 
-    public List<String> allWriters() {
-        Set<String> allWriters = new HashSet<String>();
-        List<Comic> comics = comicRepository.findAll();
-        for(Comic comic : comics){
-            StringTokenizer tokenizer = new StringTokenizer(comic.getWriter(), ",");
-            while(tokenizer.hasMoreTokens())
-                allWriters.add(tokenizer.nextToken().trim());
+    //маппинг ComicRequestDTO в Comic
+    public Comic convertToComic(ComicRequestDTO comicRequestDTO) {
+        return modelMapper.map(comicRequestDTO, Comic.class);
+    }
+
+    //маппинг Comic в ComicResponseDTO
+    public ComicResponseDTO convertToResponseDTO(Comic comic){
+        return modelMapper.map(comic, ComicResponseDTO.class);
+    }
+
+    //маппинг Comic в ComicRequestDTO. Необходимо только для Patch-запроса в Thymeleaf
+    public ComicRequestDTO convertToRequestDTO(Comic comic) {
+        ComicRequestDTO requestDTO = modelMapper.map(comic, ComicRequestDTO.class);
+        StringBuilder artists = new StringBuilder();
+        for(Artist artist : comic.getArtists()) {
+            artists.append(artist.toString());
+            artists.append(",");
         }
-        return new ArrayList<String>(allWriters);
-    }
-
-    public List<String> allArtists() {
-        Set<String> allArtists = new HashSet<String>();
-        List<Comic> comics = comicRepository.findAll();
-        for(Comic comic : comics){
-            StringTokenizer tokenizer = new StringTokenizer(comic.getArtist(), ",");
-            while(tokenizer.hasMoreTokens())
-                allArtists.add(tokenizer.nextToken().trim());
+        StringBuilder writers = new StringBuilder();
+        for(Writer writer : comic.getWriters()) {
+            writers.append(writer.toString());
+            writers.append(",");
         }
-        return new ArrayList<String>(allArtists);
-    }
-
-    public List<Comic> findByWriter(String writer) {
-        return comicRepository.findByWriterContains(writer);
-    }
-
-    public List<Comic> findByArtist(String artist) {
-        return comicRepository.findByArtistContains(artist);
+        requestDTO.setArtists(artists.toString().trim());
+        requestDTO.setWriters(writers.toString().trim());
+        return requestDTO;
     }
 }
 

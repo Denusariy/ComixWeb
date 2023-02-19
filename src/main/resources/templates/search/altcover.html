@@ -8,17 +8,26 @@
 
 <a href="/comix">На главную</a>
 <br/>
+<a href="/comix/search">К поиску</a>
+<br/>
 <p>Книги с альтернативной обложкой:</p>
-<div th:if="${books.isEmpty()}">
+<div th:if="${bookPage.isEmpty()}">
   <span>Книг не найдено</span>
 </div>
-<div th:each="book : ${books}">
+<div th:each="book : ${bookPage}">
   <p>
     <a th:href="@{/comix/{id}(id=${book.getId()})}"
        th:text="${book.getTitle()}">hyper</a>
     <span th:text="${book.getYear() + ' год, формат: ' + book.getFormat().getDisplayValue()}">text</span>
   </p>
 </div>
+<hr/>
+
+<span th:if="${bookPage.totalPages > 1}" class="pagination"
+      th:each="pageNumber : ${pageNumbers}">
+     <a th:href="@{/comix/search/altcover(size=${bookPage.size}, page=${pageNumber - 1})}"
+        th:text="${pageNumber}" th:class="${pageNumber==bookPage.number + 1} ? active"></a>
+</span>
 
 </body>
 </html>
