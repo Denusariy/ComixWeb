@@ -5,14 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.denusariy.Comix.domain.dto.request.BookRequestDTO;
+import ru.denusariy.Comix.domain.dto.response.BookPageResponseDTO;
+import ru.denusariy.Comix.domain.dto.response.BookResponseDTO;
 import ru.denusariy.Comix.domain.entity.Book;
-import ru.denusariy.Comix.domain.entity.Comic;
 import ru.denusariy.Comix.repositories.BookRepository;
 import ru.denusariy.Comix.exception.BookNotFoundException;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -27,63 +27,69 @@ public class BookService {
         this.modelMapper = modelMapper;
     }
 
+    //получить книгу по id, возвращает ResponseDTO
     @Transactional(readOnly = true)
-    public Book findOne(int id) {
-        return bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
+    public BookResponseDTO findOne(int id) {
+        return convertToDTO(bookRepository.findById(id).orElseThrow(BookNotFoundException::new));
     }
 
-    @Transactional(readOnly = true)
-    public List<Comic> getComicsByBookId(int id) {
-        return bookRepository.findById(id).get().getComicsList();
-    }
-
+    //сохранить книгу, возвращает ResponseDTO
     @Transactional
-    public void save(Book book) {
-        bookRepository.save(book);
+    public BookResponseDTO save(BookRequestDTO bookRequestDTO) {
+        return convertToDTO(bookRepository.save(convertToBook(bookRequestDTO)));
     }
 
+    //удалить книгу по id
     @Transactional
     public void delete(int id) {
         bookRepository.deleteById(id);
     }
 
+    //обновить книгу
     @Transactional
-    public void update(int id, Book updatedBook) {
+    public void update(int id, BookRequestDTO updatedBook) {
         Book bookToBeUpdated = bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
         modelMapper.map(updatedBook, bookToBeUpdated);
         bookRepository.save(bookToBeUpdated);
     }
 
+    //получить список всех книг в виде ResponseDTO, с пагинацией и сортировкой по названию
     @Transactional(readOnly = true)
-    public List<Book> searchByTitle(String query) {
-        return bookRepository.findByTitleContainsIgnoreCase(query);
+    public BookPageResponseDTO findAllWithPagination(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("title"));
+        Page<BookResponseDTO> books = bookRepository.findAll(pageable).map(this::convertToDTO);
+        List<Integer> pageNumbers = IntStream.rangeClosed(1, books.getTotalPages()).boxed().collect(Collectors.toList());
+        return new BookPageResponseDTO(books, pageNumbers);
     }
 
-    public Page<Book> findWithPagination(Optional<Integer> page, Optional<Integer> size) {
-        int currentPage = page.orElse(1);
-        int pageSize = size.orElse(20);
-        return findPaginated(PageRequest.of(currentPage - 1, pageSize));
-    }
-
+    //получить список книг в виде ResponseDTO с указанной строкой в названии, с пагинацией и сортировкой по названию
     @Transactional(readOnly = true)
-    public Page<Book> findPaginated(Pageable pageable) {
-        int pageSize = pageable.getPageSize();
-        int currentPage = pageable.getPageNumber();
-        int startItem = currentPage * pageSize;
-        List<Book> list;
-        List<Book> books = bookRepository.findAll(Sort.by("title"));
-        if(books.size() < startItem) {
-            list = Collections.emptyList();
-        } else {
-            int toIndex = Math.min(startItem + pageSize, books.size());
-            list = books.subList(startItem, toIndex);
-        }
-        Page<Book> bookPage = new PageImpl<Book>(list, PageRequest.of(currentPage, pageSize), books.size());
-        return bookPage;
+    public Page<BookResponseDTO> searchByTitle(String query, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("title"));
+        return bookRepository.findByTitleContainsIgnoreCase(query, pageable).map(this::convertToDTO);
+    }
+    //получить список книг в виде ResponseDTO с альтернативной обложкой, с пагинацией и сортировкой по названию
+    @Transactional(readOnly = true)
+    public Page<BookResponseDTO> searchByAltCover(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("title"));
+        return bookRepository.findByIsAltCoverTrue(pageable).map(this::convertToDTO);
     }
 
-    public List<Integer> getPageNumbers(Page<Book> bookPage) {
-        return IntStream.rangeClosed(1, bookPage.getTotalPages()).boxed().collect(Collectors.toList());
+    //получить список книг в виде ResponseDTO с автографом, с пагинацией и сортировкой по названию
+    @Transactional(readOnly = true)
+    public Page<BookResponseDTO> searchByAutograph(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("title"));
+        return bookRepository.findByIsAutographTrue(pageable).map(this::convertToDTO);
+    }
+
+    //маппинг Book в BookResponseDTO
+    private BookResponseDTO convertToDTO(Book book) {
+        return modelMapper.map(book, BookResponseDTO.class);
+    }
+
+    //маппинг BookRequestDTO в Book
+    private Book convertToBook(BookRequestDTO bookRequestDTO) {
+        return modelMapper.map(bookRequestDTO, Book.class);
     }
 
 }
