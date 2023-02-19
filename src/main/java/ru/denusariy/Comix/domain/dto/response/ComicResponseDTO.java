@@ -4,10 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import ru.denusariy.Comix.domain.entity.Artist;
 import ru.denusariy.Comix.domain.entity.Book;
 import ru.denusariy.Comix.domain.entity.Writer;
-
-import javax.persistence.*;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 public class ComicResponseDTO {

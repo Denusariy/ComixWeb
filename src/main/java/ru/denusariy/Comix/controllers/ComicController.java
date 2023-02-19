@@ -1,33 +1,26 @@
 package ru.denusariy.Comix.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.denusariy.Comix.domain.dto.request.ComicRequestDTO;
-import ru.denusariy.Comix.domain.entity.Comic;
 import ru.denusariy.Comix.services.BookService;
 import ru.denusariy.Comix.services.ComicService;
-import ru.denusariy.Comix.services.WriterService;
-
 import javax.validation.Valid;
-import java.util.Map;
-import java.util.Objects;
+
 
 @Controller
 @RequestMapping("/comix")
 public class ComicController {
     private final ComicService comicService;
     private final BookService bookService;
-
-    private final WriterService writerService;
-
-    public ComicController(ComicService comicService, BookService bookService, WriterService writerService) {
+    @Autowired
+    public ComicController(ComicService comicService, BookService bookService) {
         this.comicService = comicService;
         this.bookService = bookService;
-        this.writerService = writerService;
     }
 
     @GetMapping("/{book_id}/new_comic")
@@ -61,7 +54,7 @@ public class ComicController {
     }
 
     @PatchMapping("/comics/{comic_id}")
-    @Operation(summary = "PATCH-запрос для редактирования комикса, имеется валидация")
+    @Operation(summary = "PATCH-запрос для редактирования комикса")
     public String update(@PathVariable("comic_id") int comic_id, @Valid ComicRequestDTO requestDTO,
                          BindingResult bindingResult) {
         int book_id = comicService.findOne(comic_id).getBook().getId();

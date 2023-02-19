@@ -1,12 +1,6 @@
 package ru.denusariy.Comix.domain.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import ru.denusariy.Comix.domain.entity.Comic;
 import ru.denusariy.Comix.domain.enums.Format;
-
-import javax.persistence.*;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 public class BookResponseDTO {

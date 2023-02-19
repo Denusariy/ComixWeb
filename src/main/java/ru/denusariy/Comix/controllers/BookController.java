@@ -2,55 +2,42 @@ package ru.denusariy.Comix.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.denusariy.Comix.domain.dto.request.BookRequestDTO;
+import ru.denusariy.Comix.domain.dto.response.BookPageResponseDTO;
 import ru.denusariy.Comix.domain.dto.response.BookResponseDTO;
-import ru.denusariy.Comix.domain.entity.Book;
+import ru.denusariy.Comix.services.ArtistService;
 import ru.denusariy.Comix.services.BookService;
-import ru.denusariy.Comix.services.ComicService;
 import ru.denusariy.Comix.exception.BookNotFoundException;
+import ru.denusariy.Comix.services.WriterService;
+
 import javax.validation.Valid;
-import java.util.Optional;
 
 
 @Controller
 @RequestMapping("/comix")
 public class BookController {
     private final BookService bookService;
-    private final ComicService comicService;
+    private final WriterService writerService;
+    private final ArtistService artistService;
     @Autowired
-    public BookController(BookService bookService, ComicService comicService) {
+    public BookController(BookService bookService, WriterService writerService, ArtistService artistService) {
         this.bookService = bookService;
-        this.comicService = comicService;
+        this.writerService = writerService;
+        this.artistService = artistService;
     }
-
-//    @GetMapping()
-//    @Operation(summary = "Открытие главной страницы. Здесь список всех книг, возможность добавить новую книгу и " +
-//            "различные варианты поиска. Работает пагинация")
-//    public String index(Model model, @RequestParam("page") Optional<Integer> page,
-//                        @RequestParam("size") Optional<Integer> size) {
-//        Page<Book> bookPage = bookService.findWithPagination(page, size);
-//        model.addAttribute("bookPage", bookPage);
-//        model.addAttribute("pageNumbers", bookService.getPageNumbers(bookPage));
-//        model.addAttribute("writers", comicService.allWriters());
-//        model.addAttribute("artists", comicService.allArtists());
-//        return "books/main";
-//    }
-//
-//
 
     @GetMapping()
     @Operation(summary = "Открытие главной страницы. Здесь список всех книг, возможность добавить новую книгу. " +
             "Работает пагинация")
-    public String index(Model model, @RequestParam("page") Optional<Integer> page,
-                        @RequestParam("size") Optional<Integer> size) {
-        Page<BookResponseDTO> bookPage = bookService.findWithPagination(page, size);
-        model.addAttribute("bookPage", bookPage);
-        model.addAttribute("pageNumbers", bookService.getPageNumbers(bookPage));
+    public String index(Model model, @RequestParam(value = "page", defaultValue = "0") Integer page,
+                        @RequestParam(value = "size", defaultValue = "20") Integer size) {
+        BookPageResponseDTO bookPage = bookService.findAllWithPagination(page, size);
+        model.addAttribute("bookPage", bookPage.getBooks());
+        model.addAttribute("pageNumbers", bookPage.getPageNumbers());
         return "books/main";
     }
 
@@ -86,12 +73,11 @@ public class BookController {
     @Operation(summary = "Получение формы для редактирования книги с указанным id")
     public String edit(@PathVariable("id") int id, Model model) {
         model.addAttribute("book", bookService.findOne(id));
-//        model.addAttribute("book_id", id);
         return "books/edit";
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "PUT-запрос для редактирования книги, имеется валидация")
+    @Operation(summary = "PUT-запрос для редактирования книги")
     public String update(@PathVariable("id") int id, @Valid BookRequestDTO bookDTO, BindingResult bindingResult) {
         if(bindingResult.hasErrors())
             return "redirect:/comix/" + id + "/edit"; //Возвращает без указания на ошибки валидации TODO
@@ -103,6 +89,14 @@ public class BookController {
     @Operation(summary = "DELETE-запрос для удаления книги с указанным id")
     public String delete(@PathVariable("id") int id) {
         bookService.delete(id);
+        return "redirect:/comix";
+    }
+
+    @GetMapping("/delete")
+    @Operation(summary = "GET-запрос для удаления неиспользуемых сценаристов и художников")
+    public String deleteNotUsedArtistsAndWriters() {
+        writerService.deleteIfNotUsed();
+        artistService.deleteIfNotUsed();
         return "redirect:/comix";
     }
 }

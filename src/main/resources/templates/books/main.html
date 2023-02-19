@@ -5,35 +5,11 @@
     <title>Main page</title>
 </head>
 <body>
+COMIX
 <br/>
-
-<!--<form th:method="POST" th:action="@{/comix/search/title}">-->
-<!--    <label for="query">Поиск по названию: </label>-->
-<!--    <input type="text" id="query" name="query"/>-->
-<!--    <input type="submit" value="Искать"/>-->
-<!--</form>-->
-<!--<form th:method="POST" th:action="@{/comix/search/writer}">-->
-<!--    <label for="writers">Поиск по сценаристу: </label>-->
-<!--    <select th:object="${writers}" name="writer" id="writers">-->
-<!--        <option th:each="writer : ${writers}" th:value="${writer}" th:text="${writer}" name="writer"></option>-->
-<!--    </select>-->
-<!--    <input type="submit" value="Искать"/>-->
-<!--</form>-->
-<!--<form th:method="POST" th:action="@{/comix/search/artist}">-->
-<!--    <label for="artists">Поиск по художнику: </label>-->
-<!--    <select th:object="${artists}" name="artist" id="artists">-->
-<!--        <option th:each="artist : ${artists}" th:value="${artist}" th:text="${artist}" name="artist"></option>-->
-<!--    </select>-->
-<!--    <input type="submit" value="Искать"/>-->
-<!--</form>-->
-<!--<form th:method="POST" th:action="@{/comix/search/altcover}">-->
-<!--    <span>Книги с альтернативными обложками </span>-->
-<!--    <input type="submit" value="Искать"/>-->
-<!--</form>-->
-<!--<form th:method="POST" th:action="@{/comix/search/autograph}">-->
-<!--    <span>Книги с автографами </span>-->
-<!--    <input type="submit" value="Искать"/>-->
-<!--</form>-->
+<form th:method="GET" th:action="@{/comix/search}">
+    <input type="submit" value="Поиск">
+</form>
 <hr/>
 <a href="/comix/new">Добавить книгу</a>
 <br/>
@@ -47,7 +23,7 @@
 
 <span th:if="${bookPage.totalPages > 1}" class="pagination"
      th:each="pageNumber : ${pageNumbers}">
-     <a th:href="@{/comix(size=${bookPage.size}, page=${pageNumber})}"
+     <a th:href="@{/comix(size=${bookPage.size}, page=${pageNumber - 1})}"
         th:text="${pageNumber}" th:class="${pageNumber==bookPage.number + 1} ? active"></a>
 </span>
 

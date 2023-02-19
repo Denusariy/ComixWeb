@@ -1,11 +1,10 @@
 package ru.denusariy.Comix.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.denusariy.Comix.domain.entity.Comic;
 import ru.denusariy.Comix.domain.entity.Writer;
-import ru.denusariy.Comix.exception.ComicNotFoundException;
-import ru.denusariy.Comix.repositories.ComicRepository;
 import ru.denusariy.Comix.repositories.WriterRepository;
 
 import java.util.*;
@@ -14,13 +13,12 @@ import java.util.*;
 public class WriterService {
 
     private final WriterRepository writerRepository;
-    private final ComicRepository comicRepository;
-
-    public WriterService(WriterRepository writerRepository, ComicRepository comicRepository) {
+    @Autowired
+    public WriterService(WriterRepository writerRepository) {
         this.writerRepository = writerRepository;
-        this.comicRepository = comicRepository;
     }
 
+    //сохранение сценаристов, преобразование из строки в список сущностей
     @Transactional
     public List<Writer> save(String writers) {
         List<Writer> result = new ArrayList<>();
@@ -34,5 +32,27 @@ public class WriterService {
             result.add(writer);
         }
         return result;
+    }
+    //получение списка всех сценаристов, с сортировкой
+    @Transactional(readOnly = true)
+    public List<Writer> findAll() {
+        return writerRepository.findAll(Sort.by("name"));
+    }
+
+
+    //получение сценариста по имени
+    @Transactional(readOnly = true)
+    public Writer findByName(String name) {
+        String writer = name.replace('+', ' ');
+        return writerRepository.findByNameEquals(writer);
+    }
+
+    //удаление из таблицы неиспользуемых сценаристов
+    @Transactional
+    public void deleteIfNotUsed() {
+        for(Writer writer : writerRepository.findAll()) {
+            if(writer.getComics().isEmpty())
+                writerRepository.delete(writer);
+        }
     }
 }

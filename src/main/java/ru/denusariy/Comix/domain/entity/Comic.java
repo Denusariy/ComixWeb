@@ -1,7 +1,5 @@
 package ru.denusariy.Comix.domain.entity;
 
-import org.springframework.stereotype.Component;
-
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -30,7 +28,6 @@ public class Comic {
             joinColumns = @JoinColumn(name = "comic_id"),
             inverseJoinColumns = @JoinColumn(name = "writer_id"))
     private List<Writer> writers;
-
     @ManyToMany
     @JoinTable(
             name = "comic_artist",

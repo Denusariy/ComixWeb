@@ -4,7 +4,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ReflectionUtils;
 import ru.denusariy.Comix.domain.dto.request.ComicRequestDTO;
 import ru.denusariy.Comix.domain.dto.response.ComicResponseDTO;
 import ru.denusariy.Comix.domain.entity.Artist;
@@ -14,8 +13,6 @@ import ru.denusariy.Comix.domain.entity.Writer;
 import ru.denusariy.Comix.exception.ComicNotFoundException;
 import ru.denusariy.Comix.repositories.BookRepository;
 import ru.denusariy.Comix.repositories.ComicRepository;
-
-import java.lang.reflect.Field;
 import java.util.*;
 
 @Service
@@ -36,8 +33,9 @@ public class ComicService {
         this.artistService = artistService;
     }
 
+    //сохранить комикс, сценаристов и художников
     @Transactional
-    public ComicResponseDTO save(int id, ComicRequestDTO comicRequestDTO) {
+    public void save(int id, ComicRequestDTO comicRequestDTO) {
         Comic comic = convertToComic(comicRequestDTO);
         comic.setWriters(writerService.save(comicRequestDTO.getWriters()));
         comic.setArtists(artistService.save(comicRequestDTO.getArtists()));
@@ -45,18 +43,22 @@ public class ComicService {
         comic.setBook(book);
         assert book != null;
         book.setComicsList(new ArrayList<>(Collections.singletonList(comic)));
-        return convertToResponseDTO(comicRepository.save(comic));
+        comicRepository.save(comic);
     }
+
+    //найти комикс по id, возвращает ResponseDTO
     @Transactional(readOnly = true)
     public ComicResponseDTO findOne(int id) {
         return convertToResponseDTO(comicRepository.findById(id).orElseThrow(ComicNotFoundException::new));
     }
 
+    //найти комикс по id, возвращает RequestDTO. Необходимо только для Patch-запроса в Thymeleaf
     @Transactional(readOnly = true)
     public ComicRequestDTO findOneForPatch(int id) {
         return convertToRequestDTO(comicRepository.findById(id).orElseThrow(ComicNotFoundException::new));
     }
 
+    //обновить комикс, сохранить сценаристов и художников
     @Transactional
     public void update(int comicId, ComicRequestDTO comicRequestDTO) {
         Comic comicToBeUpdated = comicRepository.findById(comicId).orElseThrow(ComicNotFoundException::new);
@@ -64,55 +66,27 @@ public class ComicService {
         comicToBeUpdated.setYear(comicRequestDTO.getYear());
         comicToBeUpdated.setWriters(writerService.save(comicRequestDTO.getWriters()));
         comicToBeUpdated.setArtists(artistService.save(comicRequestDTO.getArtists()));
-
-//        modelMapper.map(updatedComic, comicToBeUpdated);
         comicRepository.save(comicToBeUpdated);
     }
 
+    //удалить комикс по id
     @Transactional
     public void delete(int comicId) {
         comicRepository.deleteById(comicId);
     }
 
-//    public List<String> allWriters() {
-//        Set<String> allWriters = new HashSet<String>();
-//        List<Comic> comics = comicRepository.findAll();
-//        for(Comic comic : comics){
-//            StringTokenizer tokenizer = new StringTokenizer(comic.getWriter(), ",");
-//            while(tokenizer.hasMoreTokens())
-//                allWriters.add(tokenizer.nextToken().trim());
-//        }
-//        return new ArrayList<String>(allWriters);
-//    }
-//
-//    public List<String> allArtists() {
-//        Set<String> allArtists = new HashSet<String>();
-//        List<Comic> comics = comicRepository.findAll();
-//        for(Comic comic : comics){
-//            StringTokenizer tokenizer = new StringTokenizer(comic.getArtist(), ",");
-//            while(tokenizer.hasMoreTokens())
-//                allArtists.add(tokenizer.nextToken().trim());
-//        }
-//        return new ArrayList<String>(allArtists);
-//    }
-
-//    public List<Comic> findByWriter(String writer) {
-//        return comicRepository.findByWriterContains(writer);
-//    }
-//
-//    public List<Comic> findByArtist(String artist) {
-//        return comicRepository.findByArtistContains(artist);
-//    }
-
-    private Comic convertToComic(ComicRequestDTO comicRequestDTO) {
+    //маппинг ComicRequestDTO в Comic
+    public Comic convertToComic(ComicRequestDTO comicRequestDTO) {
         return modelMapper.map(comicRequestDTO, Comic.class);
     }
 
-    private ComicResponseDTO convertToResponseDTO(Comic comic){
+    //маппинг Comic в ComicResponseDTO
+    public ComicResponseDTO convertToResponseDTO(Comic comic){
         return modelMapper.map(comic, ComicResponseDTO.class);
     }
 
-    private ComicRequestDTO convertToRequestDTO(Comic comic) {
+    //маппинг Comic в ComicRequestDTO. Необходимо только для Patch-запроса в Thymeleaf
+    public ComicRequestDTO convertToRequestDTO(Comic comic) {
         ComicRequestDTO requestDTO = modelMapper.map(comic, ComicRequestDTO.class);
         StringBuilder artists = new StringBuilder();
         for(Artist artist : comic.getArtists()) {

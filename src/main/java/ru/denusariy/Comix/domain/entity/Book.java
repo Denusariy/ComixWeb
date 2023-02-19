@@ -1,6 +1,5 @@
 package ru.denusariy.Comix.domain.entity;
 
-import org.springframework.stereotype.Component;
 import ru.denusariy.Comix.domain.enums.Format;
 
 import javax.persistence.*;
@@ -33,18 +32,6 @@ public class Book {
     private String signature;
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
     private List<Comic> comicsList;
-
-
-    public Book() {
-    }
-
-    public Book(String title, int year, Format format, boolean isAltCover, boolean isAutograph) {
-        this.title = title;
-        this.year = year;
-        this.format = format;
-        this.isAltCover = isAltCover;
-        this.isAutograph = isAutograph;
-    }
 
     public int getId() {
         return id;

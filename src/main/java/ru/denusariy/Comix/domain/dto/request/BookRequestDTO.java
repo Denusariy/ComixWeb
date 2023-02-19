@@ -2,7 +2,6 @@ package ru.denusariy.Comix.domain.dto.request;
 
 import ru.denusariy.Comix.domain.enums.Format;
 
-import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.validation.constraints.Min;
