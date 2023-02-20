@@ -58,14 +58,11 @@ public class ComicService {
         return convertToRequestDTO(comicRepository.findById(id).orElseThrow(ComicNotFoundException::new));
     }
 
-    //обновить комикс, сохранить сценаристов и художников
+    //обновить комикс
     @Transactional
-    public void update(int comicId, ComicRequestDTO comicRequestDTO) {
-        Comic comicToBeUpdated = comicRepository.findById(comicId).orElseThrow(ComicNotFoundException::new);
-        comicToBeUpdated.setTitle(comicRequestDTO.getTitle());
-        comicToBeUpdated.setYear(comicRequestDTO.getYear());
-        comicToBeUpdated.setWriters(writerService.save(comicRequestDTO.getWriters()));
-        comicToBeUpdated.setArtists(artistService.save(comicRequestDTO.getArtists()));
+    public void update(ComicResponseDTO updatedComic) {
+        Comic comicToBeUpdated = comicRepository.findById(updatedComic.getId()).orElseThrow(ComicNotFoundException::new);
+        modelMapper.map(updatedComic, comicToBeUpdated);
         comicRepository.save(comicToBeUpdated);
     }
 

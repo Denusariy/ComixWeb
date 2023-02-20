@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.denusariy.Comix.domain.dto.request.ComicRequestDTO;
 import ru.denusariy.Comix.services.BookService;
 import ru.denusariy.Comix.services.ComicService;
+import ru.denusariy.Comix.services.DeleteService;
+
 import javax.validation.Valid;
 
 
@@ -17,10 +19,12 @@ import javax.validation.Valid;
 public class ComicController {
     private final ComicService comicService;
     private final BookService bookService;
+    private final DeleteService deleteService;
     @Autowired
-    public ComicController(ComicService comicService, BookService bookService) {
+    public ComicController(ComicService comicService, BookService bookService, DeleteService deleteService) {
         this.comicService = comicService;
         this.bookService = bookService;
+        this.deleteService = deleteService;
     }
 
     @GetMapping("/{book_id}/new_comic")
@@ -60,14 +64,15 @@ public class ComicController {
         int book_id = comicService.findOne(comic_id).getBook().getId();
         if(bindingResult.hasErrors())
             return "redirect:/comix/comics/" + comic_id + "/edit"; //Возвращает без указания на ошибки валидации TODO
-        comicService.update(comic_id, requestDTO);
+        deleteService.updateComic(comic_id, requestDTO);
         return "redirect:/comix/" + book_id;
     }
+
     @DeleteMapping("/comics/{comic_id}/delete")
     @Operation(summary = "DELETE-запрос для удаления комикса с указанным id")
     public String delete(@PathVariable("comic_id") int comic_id) {
         int book_id = comicService.findOne(comic_id).getBook().getId();
-        comicService.delete(comic_id);
+        deleteService.deleteComic(comic_id);
         return "redirect:/comix/" + book_id;
     }
 }
