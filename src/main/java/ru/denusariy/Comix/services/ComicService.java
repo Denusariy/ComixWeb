@@ -10,6 +10,7 @@ import ru.denusariy.Comix.domain.entity.Artist;
 import ru.denusariy.Comix.domain.entity.Book;
 import ru.denusariy.Comix.domain.entity.Comic;
 import ru.denusariy.Comix.domain.entity.Writer;
+import ru.denusariy.Comix.exception.BookNotFoundException;
 import ru.denusariy.Comix.exception.ComicNotFoundException;
 import ru.denusariy.Comix.repositories.BookRepository;
 import ru.denusariy.Comix.repositories.ComicRepository;
@@ -39,9 +40,8 @@ public class ComicService {
         Comic comic = convertToComic(comicRequestDTO);
         comic.setWriters(writerService.save(comicRequestDTO.getWriters()));
         comic.setArtists(artistService.save(comicRequestDTO.getArtists()));
-        Book book = bookRepository.findById(id).orElse(null);
+        Book book = bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
         comic.setBook(book);
-        assert book != null;
         book.setComicsList(new ArrayList<>(Collections.singletonList(comic)));
         comicRepository.save(comic);
     }
@@ -58,14 +58,11 @@ public class ComicService {
         return convertToRequestDTO(comicRepository.findById(id).orElseThrow(ComicNotFoundException::new));
     }
 
-    //обновить комикс, сохранить сценаристов и художников
+    //обновить комикс
     @Transactional
-    public void update(int comicId, ComicRequestDTO comicRequestDTO) {
-        Comic comicToBeUpdated = comicRepository.findById(comicId).orElseThrow(ComicNotFoundException::new);
-        comicToBeUpdated.setTitle(comicRequestDTO.getTitle());
-        comicToBeUpdated.setYear(comicRequestDTO.getYear());
-        comicToBeUpdated.setWriters(writerService.save(comicRequestDTO.getWriters()));
-        comicToBeUpdated.setArtists(artistService.save(comicRequestDTO.getArtists()));
+    public void update(ComicResponseDTO updatedComic) {
+        Comic comicToBeUpdated = comicRepository.findById(updatedComic.getId()).orElseThrow(ComicNotFoundException::new);
+        modelMapper.map(updatedComic, comicToBeUpdated);
         comicRepository.save(comicToBeUpdated);
     }
 

@@ -50,8 +50,8 @@ public class ArtistService {
 
     //удаление из таблицы неиспользуемых художников
     @Transactional
-    public void deleteIfNotUsed() {
-        for(Artist artist : artistRepository.findAll()) {
+    public void deleteIfNotUsed(List<Artist> oldArtists) {
+        for(Artist artist : oldArtists) {
             if(artist.getComics().isEmpty())
                 artistRepository.delete(artist);
         }

@@ -21,6 +21,7 @@ import java.util.stream.IntStream;
 public class BookService {
     private final BookRepository bookRepository;
     private final ModelMapper modelMapper;
+
     @Autowired
     public BookService(BookRepository bookRepository, ModelMapper modelMapper) {
         this.bookRepository = bookRepository;

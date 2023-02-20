@@ -9,10 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.denusariy.Comix.domain.dto.request.BookRequestDTO;
 import ru.denusariy.Comix.domain.dto.response.BookPageResponseDTO;
 import ru.denusariy.Comix.domain.dto.response.BookResponseDTO;
-import ru.denusariy.Comix.services.ArtistService;
 import ru.denusariy.Comix.services.BookService;
 import ru.denusariy.Comix.exception.BookNotFoundException;
-import ru.denusariy.Comix.services.WriterService;
+import ru.denusariy.Comix.services.DeleteService;
 
 import javax.validation.Valid;
 
@@ -21,13 +20,11 @@ import javax.validation.Valid;
 @RequestMapping("/comix")
 public class BookController {
     private final BookService bookService;
-    private final WriterService writerService;
-    private final ArtistService artistService;
+    private final DeleteService deleteService;
     @Autowired
-    public BookController(BookService bookService, WriterService writerService, ArtistService artistService) {
+    public BookController(BookService bookService, DeleteService deleteService) {
         this.bookService = bookService;
-        this.writerService = writerService;
-        this.artistService = artistService;
+        this.deleteService = deleteService;
     }
 
     @GetMapping()
@@ -88,15 +85,7 @@ public class BookController {
     @DeleteMapping("/{id}")
     @Operation(summary = "DELETE-запрос для удаления книги с указанным id")
     public String delete(@PathVariable("id") int id) {
-        bookService.delete(id);
-        return "redirect:/comix";
-    }
-
-    @GetMapping("/delete")
-    @Operation(summary = "GET-запрос для удаления неиспользуемых сценаристов и художников")
-    public String deleteNotUsedArtistsAndWriters() {
-        writerService.deleteIfNotUsed();
-        artistService.deleteIfNotUsed();
+        deleteService.deleteBook(id);
         return "redirect:/comix";
     }
 }

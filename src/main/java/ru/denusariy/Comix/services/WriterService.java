@@ -49,8 +49,8 @@ public class WriterService {
 
     //удаление из таблицы неиспользуемых сценаристов
     @Transactional
-    public void deleteIfNotUsed() {
-        for(Writer writer : writerRepository.findAll()) {
+    public void deleteIfNotUsed(List<Writer> oldWriters) {
+        for(Writer writer : oldWriters) {
             if(writer.getComics().isEmpty())
                 writerRepository.delete(writer);
         }
