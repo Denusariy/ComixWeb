@@ -1,11 +1,18 @@
 package ru.denusariy.Comix.domain.entity;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Entity
-@Table(name = "writer")
+@Table(schema = "public", name = "writer")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Writer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,35 +24,8 @@ public class Writer {
     @ManyToMany(mappedBy = "writers")
     List<Comic> comics;
 
-    public Writer() {
-    }
-
     public Writer(String name) {
         this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<Comic> getComics() {
-        return comics;
-    }
-
-    public void setComics(List<Comic> comics) {
-        this.comics = comics;
     }
 
     @Override
