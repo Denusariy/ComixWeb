@@ -1,7 +1,7 @@
 package ru.denusariy.Comix.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,13 +14,9 @@ import ru.denusariy.Comix.services.SearchService;
 
 @Controller
 @RequestMapping("/comix/search")
+@RequiredArgsConstructor
 public class SearchController {
     private final SearchService searchService;
-    @Autowired
-    public SearchController(SearchService searchService) {
-        this.searchService = searchService;
-    }
-
     @GetMapping()
     @Operation(summary = "GET-запрос на получение страницы поиска. Получение списков художников и сценаристов " +
             "для выпадающих списков")

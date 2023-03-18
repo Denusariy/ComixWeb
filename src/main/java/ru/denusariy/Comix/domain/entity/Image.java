@@ -1,6 +1,7 @@
 package ru.denusariy.Comix.domain.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,6 +9,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(schema = "public", name = "image")
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,8 +18,6 @@ public class Image {
     @GeneratedValue
     @Column(name = "id")
     private int id;
-    @Column(name = "name")
-    private String name;
     @Column(name = "original_name")
     private String  originalName;
     @Column(name = "size")

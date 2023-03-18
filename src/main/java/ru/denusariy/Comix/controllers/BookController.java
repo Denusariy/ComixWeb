@@ -1,11 +1,12 @@
 package ru.denusariy.Comix.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.denusariy.Comix.domain.dto.request.BookRequestDTO;
 import ru.denusariy.Comix.domain.dto.response.BookPageResponseDTO;
 import ru.denusariy.Comix.domain.dto.response.BookResponseDTO;
@@ -14,18 +15,15 @@ import ru.denusariy.Comix.exception.BookNotFoundException;
 import ru.denusariy.Comix.services.DeleteService;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 
 @Controller
 @RequestMapping("/comix")
+@RequiredArgsConstructor
 public class BookController {
     private final BookService bookService;
     private final DeleteService deleteService;
-    @Autowired
-    public BookController(BookService bookService, DeleteService deleteService) {
-        this.bookService = bookService;
-        this.deleteService = deleteService;
-    }
 
     @GetMapping()
     @Operation(summary = "Открытие главной страницы. Здесь список всех книг, возможность добавить новую книгу. " +
@@ -44,6 +42,7 @@ public class BookController {
     public String show(@PathVariable("id") int id, Model model) {
         try{
             model.addAttribute("book", bookService.findOne(id));
+            model.addAttribute("image", bookService.findOne(id).getImage());
         } catch(BookNotFoundException e) {
             return "book_not_found";
         }
@@ -58,27 +57,31 @@ public class BookController {
 
     @PostMapping()
     @Operation(summary = "POST-запрос для создания новой книги, имеется валидация")
-    public String create(@ModelAttribute("book") @Valid BookRequestDTO bookDTO,
-                         BindingResult bindingResult) {
+    public String create(@ModelAttribute("book") @Valid BookRequestDTO bookDTO, //TODO не работает валидация
+                         @RequestParam("image") MultipartFile file,
+                         BindingResult bindingResult) throws IOException {
         if(bindingResult.hasErrors())
             return "books/new";
-        BookResponseDTO book = bookService.save(bookDTO);
+        BookResponseDTO book = bookService.save(bookDTO, file);
         return "redirect:/comix/" + book.getId();
     }
 
     @GetMapping("/{id}/edit")
     @Operation(summary = "Получение формы для редактирования книги с указанным id")
     public String edit(@PathVariable("id") int id, Model model) {
-        model.addAttribute("book", bookService.findOne(id));
+        model.addAttribute("book", bookService.findOneForUpdate(id));
+        model.addAttribute("id", id);
         return "books/edit";
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "PUT-запрос для редактирования книги")
-    public String update(@PathVariable("id") int id, @Valid BookRequestDTO bookDTO, BindingResult bindingResult) {
+    public String update(@PathVariable("id") int id, @Valid BookRequestDTO bookDTO,
+                         @RequestParam("image") MultipartFile file,
+                         BindingResult bindingResult) throws IOException {
         if(bindingResult.hasErrors())
-            return "redirect:/comix/" + id + "/edit"; //Возвращает без указания на ошибки валидации TODO
-        bookService.update(id, bookDTO);
+            return "books/edit"; //TODO не работает валидация
+        bookService.update(id, bookDTO, file);
         return "redirect:/comix/" + id;
     }
 

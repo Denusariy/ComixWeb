@@ -1,6 +1,6 @@
 package ru.denusariy.Comix.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.denusariy.Comix.domain.dto.request.ComicRequestDTO;
 import ru.denusariy.Comix.domain.dto.response.ComicResponseDTO;
@@ -11,18 +11,12 @@ import ru.denusariy.Comix.domain.entity.Writer;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class DeleteService {
     private final ComicService comicService;
     private final WriterService writerService;
     private final ArtistService artistService;
     private final BookService bookService;
-    @Autowired
-    public DeleteService(ComicService comicService, WriterService writerService, ArtistService artistService, BookService bookService) {
-        this.comicService = comicService;
-        this.writerService = writerService;
-        this.artistService = artistService;
-        this.bookService = bookService;
-    }
 
     //конвертирует ComicRequestDTO в ComicResponseDTO и отправляет в метод update, отправляет списки сценаристов
     //и художников на проверку на удаление

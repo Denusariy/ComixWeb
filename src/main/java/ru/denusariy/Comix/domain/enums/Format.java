@@ -7,7 +7,7 @@ public enum Format {
     OMNI("Омнибус");
 
     private final String displayValue;
-    private Format(String displayValue) {
+    Format(String displayValue) {
         this.displayValue = displayValue;
     }
     public String getDisplayValue() {

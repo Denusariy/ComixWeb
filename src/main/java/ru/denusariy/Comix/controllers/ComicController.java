@@ -1,7 +1,7 @@
 package ru.denusariy.Comix.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,16 +16,11 @@ import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/comix")
+@RequiredArgsConstructor
 public class ComicController {
     private final ComicService comicService;
     private final BookService bookService;
     private final DeleteService deleteService;
-    @Autowired
-    public ComicController(ComicService comicService, BookService bookService, DeleteService deleteService) {
-        this.comicService = comicService;
-        this.bookService = bookService;
-        this.deleteService = deleteService;
-    }
 
     @GetMapping("/{book_id}/new_comic")
     @Operation(summary = "Получение формы для создания нового комикса. Комикс получит id данной книги в качестве " +
@@ -40,7 +35,7 @@ public class ComicController {
     @Operation(summary = "POST-запрос для создания нового комикса, имеется валидация")
     public String create(@PathVariable("book_id") int book_id, Model model,
                          @ModelAttribute("comic") @Valid ComicRequestDTO comicDTO,
-                         BindingResult bindingResult) {
+                         BindingResult bindingResult) {     //TODO не работает валидация
         model.addAttribute("book", bookService.findOne(book_id));
         if(bindingResult.hasErrors())
             return "comics/new_comic";
@@ -52,7 +47,7 @@ public class ComicController {
     @Operation(summary = "Получение формы для редактирования комикса с указанным id. На странице имеется кнопка " +
             "удаления комикса")
     public String edit(@PathVariable("comic_id") int comic_id, Model model) {
-        model.addAttribute("comic", comicService.findOneForPatch(comic_id));
+        model.addAttribute("comic", comicService.findOneForUpdate(comic_id));
         model.addAttribute("comic_id", comic_id);
         return "comics/edit";
     }
@@ -63,7 +58,7 @@ public class ComicController {
                          BindingResult bindingResult) {
         int book_id = comicService.findOne(comic_id).getBook().getId();
         if(bindingResult.hasErrors())
-            return "redirect:/comix/comics/" + comic_id + "/edit"; //Возвращает без указания на ошибки валидации TODO
+            return "comics/edit"; //TODO не работает валидация
         deleteService.updateComic(comic_id, requestDTO);
         return "redirect:/comix/" + book_id;
     }

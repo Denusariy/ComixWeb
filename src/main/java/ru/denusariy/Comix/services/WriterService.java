@@ -1,6 +1,7 @@
 package ru.denusariy.Comix.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,13 +11,10 @@ import ru.denusariy.Comix.repositories.WriterRepository;
 import java.util.*;
 
 @Service
+@Log4j2
+@RequiredArgsConstructor
 public class WriterService {
-
     private final WriterRepository writerRepository;
-    @Autowired
-    public WriterService(WriterRepository writerRepository) {
-        this.writerRepository = writerRepository;
-    }
 
     //сохранение сценаристов, преобразование из строки в список сущностей
     @Transactional
@@ -28,6 +26,7 @@ public class WriterService {
             Writer writer = writerRepository.findByNameEquals(name);
             if(writer == null) {
                 writer = writerRepository.save(new Writer(name));
+                log.info("Сохранен сценарист " + writer.getName());
             }
             result.add(writer);
         }
@@ -51,8 +50,10 @@ public class WriterService {
     @Transactional
     public void deleteIfNotUsed(List<Writer> oldWriters) {
         for(Writer writer : oldWriters) {
-            if(writer.getComics().isEmpty())
+            if(writer.getComics().isEmpty()) {
+                log.info("Удален сценарист " + writer.getName());
                 writerRepository.delete(writer);
+            }
         }
     }
 }

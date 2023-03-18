@@ -1,6 +1,7 @@
 package ru.denusariy.Comix.domain.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.denusariy.Comix.domain.enums.Format;
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @Table(schema = "public", name = "book")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Book {

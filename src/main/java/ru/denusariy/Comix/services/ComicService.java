@@ -1,7 +1,8 @@
 package ru.denusariy.Comix.services;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.denusariy.Comix.domain.dto.request.ComicRequestDTO;
@@ -17,7 +18,8 @@ import ru.denusariy.Comix.repositories.ComicRepository;
 import java.util.*;
 
 @Service
-@Transactional(readOnly = true)
+@Log4j2
+@RequiredArgsConstructor
 public class ComicService {
     private final ComicRepository comicRepository;
     private final BookRepository bookRepository;
@@ -25,51 +27,51 @@ public class ComicService {
     private final WriterService writerService;
     private final ArtistService artistService;
 
-    @Autowired
-    public ComicService(ComicRepository comicRepository, BookRepository bookRepository, ModelMapper modelMapper, WriterService writerService, ArtistService artistService) {
-        this.comicRepository = comicRepository;
-        this.bookRepository = bookRepository;
-        this.modelMapper = modelMapper;
-        this.writerService = writerService;
-        this.artistService = artistService;
-    }
-
     //сохранить комикс, сценаристов и художников
     @Transactional
     public void save(int id, ComicRequestDTO comicRequestDTO) {
         Comic comic = convertToComic(comicRequestDTO);
         comic.setWriters(writerService.save(comicRequestDTO.getWriters()));
         comic.setArtists(artistService.save(comicRequestDTO.getArtists()));
-        Book book = bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
+        Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(
+                String.format("Книга с id %d не найдена!", id)));
         comic.setBook(book);
         book.setComicsList(new ArrayList<>(Collections.singletonList(comic)));
         comicRepository.save(comic);
+        log.info("Сохранен комикс " + comic.getTitle());
     }
 
     //найти комикс по id, возвращает ResponseDTO
     @Transactional(readOnly = true)
     public ComicResponseDTO findOne(int id) {
-        return convertToResponseDTO(comicRepository.findById(id).orElseThrow(ComicNotFoundException::new));
+        return convertToResponseDTO(comicRepository.findById(id).orElseThrow(() -> new ComicNotFoundException(
+                String.format("Комикс с id %d не найден!", id))));
     }
 
     //найти комикс по id, возвращает RequestDTO. Необходимо только для Patch-запроса в Thymeleaf
     @Transactional(readOnly = true)
-    public ComicRequestDTO findOneForPatch(int id) {
-        return convertToRequestDTO(comicRepository.findById(id).orElseThrow(ComicNotFoundException::new));
+    public ComicRequestDTO findOneForUpdate(int id) {
+        return convertToRequestDTO(comicRepository.findById(id).orElseThrow(() -> new ComicNotFoundException(
+                String.format("Комикс с id %d не найден!", id))));
     }
 
     //обновить комикс
     @Transactional
     public void update(ComicResponseDTO updatedComic) {
-        Comic comicToBeUpdated = comicRepository.findById(updatedComic.getId()).orElseThrow(ComicNotFoundException::new);
+        Comic comicToBeUpdated = comicRepository.findById(updatedComic.getId()).orElseThrow(() ->
+                new BookNotFoundException(String.format("Комикс с id %d не найден!", updatedComic.getId())));
         modelMapper.map(updatedComic, comicToBeUpdated);
         comicRepository.save(comicToBeUpdated);
+        log.info("Обновлен комикс " + comicToBeUpdated.getTitle());
     }
 
     //удалить комикс по id
     @Transactional
     public void delete(int comicId) {
-        comicRepository.deleteById(comicId);
+        Comic comic = comicRepository.findById(comicId).orElseThrow(() -> new ComicNotFoundException(
+                String.format("Комикс с id %d не найден!", comicId)));
+        log.info("Удален комикс " + comic.getTitle());
+        comicRepository.delete(comic);
     }
 
     //маппинг ComicRequestDTO в Comic

@@ -1,6 +1,6 @@
 package ru.denusariy.Comix.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,19 +17,12 @@ import java.util.stream.IntStream;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class SearchService {
     private final BookService bookService;
     private final ComicService comicService;
     private final WriterService writerService;
     private final ArtistService artistService;
-
-    @Autowired
-    public SearchService(BookService bookService, ComicService comicService, WriterService writerService, ArtistService artistService) {
-        this.bookService = bookService;
-        this.comicService = comicService;
-        this.writerService = writerService;
-        this.artistService = artistService;
-    }
 
     //получить ResponseDTO со списком всех сценаристов и художников
     public ArtistsWritersResponseDTO getArtistWriterResponseDTO() {

@@ -10,7 +10,7 @@
 <br/>
 <br/>
 
-<form th:method="POST" th:action="@{/comix/}" th:object="${book}">
+<form th:method="POST" th:action="@{/comix/}" th:object="${book}" enctype="multipart/form-data">
   <label for="title">Название книги: </label>
   <input type="text" th:field="*{title}" id="title">
   <div style="color:red" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Title Error</div>
@@ -36,6 +36,10 @@
   <label for="signature">Чей автограф: </label>
   <input type="text" th:field="*{signature}" id="signature">
   <div style="color:red" th:if="${#fields.hasErrors('signature')}" th:errors="*{signature}">Signature Error</div>
+  <br/>
+  <span>Изображение обложки:
+    <input type="file" th:name="image">
+  </span>
   <br/>
   <input type="submit" value="Сохранить"/>
 </form>

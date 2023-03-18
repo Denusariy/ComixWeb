@@ -1,6 +1,7 @@
 package ru.denusariy.Comix.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,12 +13,10 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 @Service
+@Log4j2
+@RequiredArgsConstructor
 public class ArtistService {
     private final ArtistRepository artistRepository;
-    @Autowired
-    public ArtistService(ArtistRepository artistRepository) {
-        this.artistRepository = artistRepository;
-    }
 
     //сохранение художников, преобразование из строки в список сущностей
     @Transactional
@@ -29,6 +28,7 @@ public class ArtistService {
             Artist artist = artistRepository.findByNameEquals(name);
             if(artist == null) {
                 artist = artistRepository.save(new Artist(name));
+                log.info("Сохранен художник " + artist.getName());
             }
             result.add(artist);
         }
@@ -52,8 +52,10 @@ public class ArtistService {
     @Transactional
     public void deleteIfNotUsed(List<Artist> oldArtists) {
         for(Artist artist : oldArtists) {
-            if(artist.getComics().isEmpty())
+            if(artist.getComics().isEmpty()) {
+                log.info("Удален художник " + artist.getName());
                 artistRepository.delete(artist);
+            }
         }
     }
 }

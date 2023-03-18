@@ -8,18 +8,24 @@
 
 <a href="/comix">На главную</a>
 <br/>
-
-<p th:text="${book.getTitle() + ', ' + book.getYear()}">Title</p>
-<p>Формат:
-    <span th:text="${book.getFormat().getDisplayValue()}"></span>
+<div th:if="${book.image != null}">
+    <a th:href="@{/images/{image_id}(image_id=${book.getImage().getId()})}">
+        <img th:src="@{/images/{image_id}(image_id=${book.getImage().getId()})}" style="width:200px"/>
+    </a>
+</div>
+<p>
+    <b th:text="${book.getTitle() + ', ' + book.getYear()}">Title</b>
 </p>
+<span>Формат:
+    <span th:text="${book.getFormat().getDisplayValue()}"></span>
+</span>
 <div th:if="${book.isAltCover()}">
-    <p>Альтернативная обложка</p>
+    <span>Альтернативная обложка</span>
 </div>
 <div th:if="${book.isAutograph()}">
-    <p>С автографом:
+    <span>С автографом:
     <span th:text="${book.getSignature()}">Autograph</span>
-    </p>
+    </span>
 </div>
 
 <hr/>
