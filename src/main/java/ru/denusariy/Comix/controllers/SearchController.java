@@ -16,6 +16,7 @@ import ru.denusariy.Comix.services.SearchService;
 @RequestMapping("/comix/search")
 @RequiredArgsConstructor
 public class SearchController {
+    private static final String BOOKS_PER_PAGE = "12";
     private final SearchService searchService;
     @GetMapping()
     @Operation(summary = "GET-запрос на получение страницы поиска. Получение списков художников и сценаристов " +
@@ -30,7 +31,7 @@ public class SearchController {
             "по названию")
     public String searchByTitle(Model model, @RequestParam("query") String query,
                                 @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                @RequestParam(value = "size", defaultValue = "12") Integer size) {
+                                @RequestParam(value = "size", defaultValue = BOOKS_PER_PAGE) Integer size) {
         BookPageResponseDTO bookPage = searchService.findBooksByTitle(query, page, size);
         model.addAttribute("bookPage", bookPage.getBooks());
         model.addAttribute("pageNumbers", bookPage.getPageNumbers());
@@ -42,7 +43,7 @@ public class SearchController {
     @Operation(summary = "GET-запрос для поиска книг с альтернативной обложкой, работает пагинация и сортировка " +
             "по названию")
     public String searchAltCover(Model model, @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                 @RequestParam(value = "size", defaultValue = "12") Integer size) {
+                                 @RequestParam(value = "size", defaultValue = BOOKS_PER_PAGE) Integer size) {
         BookPageResponseDTO bookPage = searchService.findBooksWithAltCover(page, size);
         model.addAttribute("bookPage", bookPage.getBooks());
         model.addAttribute("pageNumbers", bookPage.getPageNumbers());
@@ -52,7 +53,7 @@ public class SearchController {
     @GetMapping("/autograph")
     @Operation(summary = "GET-запрос для поиска книг с автографом, работает пагинация и сортировка по названию")
     public String searchAutograph(Model model, @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                  @RequestParam(value = "size", defaultValue = "12") Integer size) {
+                                  @RequestParam(value = "size", defaultValue = BOOKS_PER_PAGE) Integer size) {
         BookPageResponseDTO bookPage = searchService.findBooksWithAutograph(page, size);
         model.addAttribute("bookPage", bookPage.getBooks());
         model.addAttribute("pageNumbers", bookPage.getPageNumbers());
@@ -64,7 +65,7 @@ public class SearchController {
             "по названию")
     public String searchByWriter(Model model, @RequestParam("writer") String writer,
                                  @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                 @RequestParam(value = "size", defaultValue = "12") Integer size) {
+                                 @RequestParam(value = "size", defaultValue = BOOKS_PER_PAGE) Integer size) {
         WriterResponseDTO comicPage = searchService.findComicsByWriter(writer, page, size);
         model.addAttribute("comicPage", comicPage.getComics());
         model.addAttribute("pageNumbers", comicPage.getPageNumbers());
@@ -77,7 +78,7 @@ public class SearchController {
             "по названию")
     public String searchByArtist(Model model, @RequestParam("artist") String artist,
                                  @RequestParam(value = "page", defaultValue = "0") Integer page,
-                                 @RequestParam(value = "size", defaultValue = "12") Integer size) {
+                                 @RequestParam(value = "size", defaultValue = BOOKS_PER_PAGE) Integer size) {
         ArtistResponseDTO comicPage = searchService.findComicsByArtist(artist, page, size);
         model.addAttribute("comicPage", comicPage.getComics());
         model.addAttribute("pageNumbers", comicPage.getPageNumbers());

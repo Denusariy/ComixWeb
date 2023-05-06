@@ -22,6 +22,7 @@ import java.io.IOException;
 @RequestMapping("/comix")
 @RequiredArgsConstructor
 public class BookController {
+    private static final String BOOKS_PER_PAGE = "25";
     private final BookService bookService;
     private final DeleteService deleteService;
 
@@ -29,7 +30,7 @@ public class BookController {
     @Operation(summary = "Открытие главной страницы. Здесь список всех книг, возможность добавить новую книгу. " +
             "Работает пагинация")
     public String index(Model model, @RequestParam(value = "page", defaultValue = "0") Integer page,
-                        @RequestParam(value = "size", defaultValue = "20") Integer size) {
+                        @RequestParam(value = "size", defaultValue = BOOKS_PER_PAGE) Integer size) {
         BookPageResponseDTO bookPage = bookService.findAllWithPagination(page, size);
         model.addAttribute("bookPage", bookPage.getBooks());
         model.addAttribute("pageNumbers", bookPage.getPageNumbers());
